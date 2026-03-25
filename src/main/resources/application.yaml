@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: api-gateway
+
+  config:
+    import: "optional:configserver:"
+
+  cloud:
+    config:
+      uri: http://localhost:9000
+
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: student-service
+              uri: lb://STUDENT-SERVICE
+              predicates:
+                - Path=/api/v1/students/**
+
+            - id: program-service
+              uri: lb://PROGRAM-SERVICE
+              predicates:
+                - Path=/api/v1/programs/**
+
+            - id: enrollment-service
+              uri: lb://ENROLLMENT-SERVICE
+              predicates:
+                - Path=/api/v1/enrollments/**
+
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "*"
+                allowedMethods: "*"
+                allowedHeaders: "*"
+
+server:
+  port: 7000
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+  client:
+    service-url:
+      defaultZone: http://localhost:9001/eureka/
+    use-dns-for-fetching-service-urls: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
